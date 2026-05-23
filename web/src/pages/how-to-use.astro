@@ -1,0 +1,45 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="How to use" description="How to consume key-atoms for signature verification across the *-atoms ecosystem.">
+  <h1>How to use key-atoms</h1>
+
+  <h2>Read the catalog over HTTPS</h2>
+  <p>Every artifact is served under stable URLs with correct content-types:</p>
+  <pre><code>curl https://key-atoms.com/exports/catalog.json
+curl https://key-atoms.com/atoms/key/&lt;key-id&gt;.json
+curl https://key-atoms.com/atoms/succession/&lt;succession-id&gt;.json
+curl https://key-atoms.com/atoms/revocation/&lt;revocation-id&gt;.json</code></pre>
+
+  <h2>Resolve a key by its <code>signer_key_id</code></h2>
+  <p>Every <code>[[signatures]]</code> entry on any atom in the federation
+  carries a <code>signer_key_id</code>. To verify, fetch the corresponding
+  key atom from key-atoms, walk <code>succeeded_by</code> if present (the
+  current authoritative key for a role lives at the end of the chain),
+  check that the key is not revoked, and verify the signature with the
+  declared algorithm.</p>
+
+  <pre><code>{`// pseudo-code
+const sig = atom.signatures[0];                          // { algorithm, signer_role, signer_key_id, signature, signed_at, covers }
+let keyAtom = await fetch(\`/atoms/key/\${sig.signer_key_id}.json\`).then(r => r.json());
+while (keyAtom.key.succeeded_by) {
+  keyAtom = await fetch(\`/atoms/key/\${keyAtom.key.succeeded_by}.json\`).then(r => r.json());
+}
+const revoked = await fetch(\`/atoms/revocation/\${keyAtom.key.key_id}.json\`)
+  .then(r => r.ok ? r.json() : null);
+if (revoked) throw new Error("key revoked");
+verifySignature(sig.algorithm, keyAtom.key.public_key, atom.content_hash, sig.signature);`}</code></pre>
+
+  <h2>Trust model</h2>
+  <p>See <a href="https://github.com/convergent-systems-co/atoms-spec">atoms-spec</a>,
+  Part IV ("Signing and trust") for the full model: supported algorithms,
+  signer roles, quorum semantics, and the Phase 2 governance escalation that
+  applies specifically to this catalog.</p>
+
+  <h2>Bootstrap status</h2>
+  <p>This catalog is in <code>lifecycle: bootstrap</code> as of v1.1.0. The
+  ML-DSA-65 root key atom has not yet been published. Until that atom
+  lands, no v1.1.0 atom in the federation can be verified end-to-end. Ed25519
+  v1.0.0 atoms remain verifiable against the legacy Ed25519 root if your
+  consumer still resolves that key.</p>
+</Base>

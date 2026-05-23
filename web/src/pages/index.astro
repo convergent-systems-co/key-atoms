@@ -1,0 +1,43 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="Home" description="Cryptographic keys as atoms — public keys, key roles, succession chains, revocation records.">
+  <h1>key-atoms</h1>
+  <p style="font-size: 1.125rem; color: var(--muted); max-width: 48rem;">
+    Catalog <strong>#25</strong> of the <code>*-atoms</code> ecosystem and
+    foundational for the v1.1.0 trust model. Public keys, key roles,
+    succession chains, and revocation records published as atoms so every
+    other catalog in the federation can verify signatures against a shared,
+    versioned, content-addressed source of truth.
+  </p>
+
+  <h2>Bootstrap status</h2>
+  <p>
+    This catalog is in <code>lifecycle: bootstrap</code>. The ML-DSA-65 root
+    key atom — the first content this catalog will hold — has not yet been
+    published. Until that atom lands, no atom in the federation can be
+    verified end-to-end.
+  </p>
+
+  <h2>Atom types</h2>
+  <ul>
+    <li><strong>key</strong> — public-key record. Private key material is never published here.</li>
+    <li><strong>revocation</strong> — key revocation record bound to a <code>key_id</code>.</li>
+    <li><strong>succession</strong> — rotation chain linking a retired key to its successor.</li>
+  </ul>
+
+  <h2>Trust properties</h2>
+  <ul>
+    <li><strong>Public-only</strong> — only public-key material is published. Private keys live offline.</li>
+    <li><strong>Quantum-resistant</strong> — ML-DSA-65 is the Phase 1 baseline (NIST FIPS 204).</li>
+    <li><strong>Role-based</strong> — signing roles (<code>root</code>, <code>editor</code>, <code>catalog-maintainer</code>, <code>ratifier</code>, <code>mirror-operator</code>) decouple authority from any individual key.</li>
+    <li><strong>Rotatable</strong> — succession is an atom-publishing operation. Old keys remain immutable; <code>succeeded_by</code> is the only sanctioned post-publication mutation.</li>
+    <li><strong>Verifiable</strong> — every atom in every dependent catalog references key atoms here by <code>signer_key_id</code>.</li>
+  </ul>
+
+  <h2>Specification</h2>
+  <p>
+    See <a href="https://github.com/convergent-systems-co/atoms-spec">atoms-spec</a>,
+    Part IV ("Signing and trust") for the full trust model.
+  </p>
+</Base>

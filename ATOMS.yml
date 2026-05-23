@@ -1,0 +1,62 @@
+# ATOMS.yml — catalog manifest for key-atoms
+#
+# See https://github.com/convergent-systems-co/atoms-spec for the canonical
+# schema this conforms to. This catalog conforms to atoms-spec/v1.1.0 — the
+# first *-atoms catalog written natively to v1.1.0 — and is foundational
+# for the v1.1.0 trust model. Every other catalog depends on key-atoms
+# for signature verification.
+#
+# See Part IV ("Signing and trust") of the spec for the structure of the
+# `key` atom type, role-based signing semantics, and the special governance
+# requirements that apply to this catalog in Phase 2.
+
+spec_version: atoms-spec/v1.1.0
+
+name: key-atoms
+version: 0.1.0
+
+canonical_domain: key-atoms.com
+federation: convergent-systems.co
+
+purpose: |
+  Cryptographic keys, key roles, key successions, and revocations as atoms.
+  Public-key records only — private key material NEVER lives in this repo
+  and is held exclusively in the principal's offline secret store. Every
+  *-atoms catalog in the convergent-systems.co federation depends on
+  key-atoms for signature verification under atoms-spec/v1.1.0.
+
+atom_types:
+  - key
+  - revocation
+  - succession
+
+composition_type: keychains
+composition_dir: keychains/
+
+# Signing rules per Part IV. key-atoms is the unusual case: it validates
+# ITS OWN atoms via root signature (catalog-maintainer authority is held
+# by the root role for this catalog). Governance atoms additionally
+# require a ratifier signature.
+signing:
+  required_algorithms: ["ml-dsa-65"]
+  accepted_algorithms: ["ml-dsa-65", "ml-dsa-87", "ed25519"]
+  quorum_rules:
+    default: "1 of role:root"
+    "key": "1 of role:root"
+    "governance/*": "1 of role:root + 1 of role:ratifier"
+
+lifecycle:
+  current: "bootstrap"
+
+licensing:
+  code: "Apache-2.0"
+  data: "CC-BY-4.0"
+
+steward: convergent-systems-co
+infrastructure_operator: convergent-systems-co
+
+# Every other catalog is implicitly a consumer of key-atoms for verification;
+# the named runtimes below are the ones that consume key atoms directly.
+runtime_consumers:
+  - aish
+  - olympus

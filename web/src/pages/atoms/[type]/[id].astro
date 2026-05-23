@@ -1,0 +1,88 @@
+---
+import Base from "../../../layouts/Base.astro";
+import catalog from "../../../../public/exports/catalog.json";
+
+export function getStaticPaths() {
+  return ((catalog as any).atoms ?? []).map((atom: any) => ({
+    params: { type: atom.type, id: atom.id },
+    props: { atom },
+  }));
+}
+
+const { atom } = Astro.props;
+const title = atom.name ?? atom.id;
+
+// Type-specific payload blocks per atoms-spec/v1.1.0 Part IV
+const keyBlock = atom.key;             // for type=key
+const revocationBlock = atom.revocation; // for type=revocation
+const successionBlock = atom.succession; // for type=succession
+const signatures = atom.signatures ?? [];
+---
+<Base title={title} description={atom.description ?? `${atom.type} atom`}>
+  <p><a href="/atoms/">← All atoms</a></p>
+  <h1>{title}</h1>
+  <p style="color: var(--muted);">
+    <code>{atom.type}</code> · <code>v{atom.version}</code>{atom.lifecycle && <> · <code>{atom.lifecycle}</code></>}
+  </p>
+
+  {atom.description && <p>{atom.description}</p>}
+
+  {keyBlock && (
+    <section>
+      <h2>Key</h2>
+      <dl style="display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem;">
+        {keyBlock.key_id && (<><dt>key_id</dt><dd><code>{keyBlock.key_id}</code></dd></>)}
+        {keyBlock.algorithm && (<><dt>algorithm</dt><dd><code>{keyBlock.algorithm}</code></dd></>)}
+        {keyBlock.role && (<><dt>role</dt><dd><code>{keyBlock.role}</code></dd></>)}
+        {keyBlock.holder && (<><dt>holder</dt><dd>{keyBlock.holder}</dd></>)}
+        {keyBlock.issued_at && (<><dt>issued_at</dt><dd><code>{keyBlock.issued_at}</code></dd></>)}
+        {keyBlock.expires_at && (<><dt>expires_at</dt><dd><code>{keyBlock.expires_at}</code></dd></>)}
+        {keyBlock.succeeded_by && (<><dt>succeeded_by</dt><dd><code>{keyBlock.succeeded_by}</code></dd></>)}
+      </dl>
+      {keyBlock.public_key && (
+        <>
+          <h3>Public key (base64)</h3>
+          <pre style="word-break: break-all; white-space: pre-wrap;"><code>{keyBlock.public_key}</code></pre>
+        </>
+      )}
+    </section>
+  )}
+
+  {revocationBlock && (
+    <section>
+      <h2>Revocation</h2>
+      <dl style="display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem;">
+        {revocationBlock.key_id && (<><dt>key_id</dt><dd><code>{revocationBlock.key_id}</code></dd></>)}
+        {revocationBlock.reason && (<><dt>reason</dt><dd>{revocationBlock.reason}</dd></>)}
+        {revocationBlock.effective_at && (<><dt>effective_at</dt><dd><code>{revocationBlock.effective_at}</code></dd></>)}
+      </dl>
+    </section>
+  )}
+
+  {successionBlock && (
+    <section>
+      <h2>Succession</h2>
+      <dl style="display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem;">
+        {successionBlock.from_key_id && (<><dt>from_key_id</dt><dd><code>{successionBlock.from_key_id}</code></dd></>)}
+        {successionBlock.to_key_id && (<><dt>to_key_id</dt><dd><code>{successionBlock.to_key_id}</code></dd></>)}
+        {successionBlock.rotated_at && (<><dt>rotated_at</dt><dd><code>{successionBlock.rotated_at}</code></dd></>)}
+      </dl>
+    </section>
+  )}
+
+  {signatures.length > 0 && (
+    <section>
+      <h2>Signatures</h2>
+      <ul>
+        {signatures.map((s: any) => (
+          <li>
+            <code>{s.signer_role}</code> via <code>{s.signer_key_id}</code> (<code>{s.algorithm}</code>) at <code>{s.signed_at}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <h2>Raw atom</h2>
+  <p><a href={`/atoms/${atom.type}/${atom.id}.json`}>/atoms/{atom.type}/{atom.id}.json</a> · <a href="/schemas/atom-v1.1.json">schema</a></p>
+</Base>

@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import catalog from "../../../public/exports/catalog.json";
+
+export function getStaticPaths() {
+  return (catalog.compositions ?? []).map((composition: any) => ({
+    params: { id: composition.id },
+    props: { composition },
+  }));
+}
+
+const { composition } = Astro.props;
+---
+<Base title={composition.id} description={composition.description ?? `Keychain ${composition.id}`}>
+  <p><a href="/keychains/">← All keychains</a></p>
+  <h1>{composition.id}</h1>
+  <p style="color: var(--muted);">
+    <code>{composition.type ?? "keychain"}</code> · <code>v{composition.version}</code>
+  </p>
+
+  {composition.description && <p>{composition.description}</p>}
+
+  <h2>Raw keychain</h2>
+  <p><a href={`/keychains/${composition.id}.json`}>/keychains/{composition.id}.json</a></p>
+</Base>

@@ -1,0 +1,20 @@
+---
+import Base from "../../layouts/Base.astro";
+import catalog from "../../../public/exports/catalog.json";
+
+const compositions = ((catalog as any).compositions ?? []).slice().sort((a: any, b: any) => a.id.localeCompare(b.id));
+---
+<Base title="Keychains" description="Named bundles of related keys — roles, mirrors, issuance periods.">
+  <h1>Keychains</h1>
+  <p>{compositions.length} keychain{compositions.length === 1 ? "" : "s"}. A keychain bundles related keys (for example, every role held by <code>convergent-systems-co</code> for a given issuance period).</p>
+
+  {compositions.length === 0 && (
+    <p style="color: var(--muted); margin-top: 1rem;">No keychains published yet. This catalog is in <code>lifecycle: bootstrap</code>; keychains will be added once the ML-DSA-65 root key atom has been published.</p>
+  )}
+
+  <ul>
+    {compositions.map((c: any) => (
+      <li><a href={`/keychains/${c.id}/`}>{c.id}</a> — v{c.version}</li>
+    ))}
+  </ul>
+</Base>
