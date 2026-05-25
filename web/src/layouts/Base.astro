@@ -11,6 +11,10 @@ const siteDesc = description ?? "Cryptographic keys as atoms — public keys, ke
     <title>{siteTitle}</title>
     <meta name="description" content={siteDesc} />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="https://brand-atoms.com/dist/brands/atom-family/1.0.0/assets/favicon.svg" />
+    <link rel="preconnect" href="https://brand-atoms.com" />
+    <link rel="stylesheet" href="https://brand-atoms.com/dist/brands/atom-family/1.0.0/css/tokens.css" />
+    <link rel="stylesheet" href="https://brand-atoms.com/dist/brands/atom-family/1.0.0/ui/atoms-catalog.css" />
     <style is:global>
       :root { --fg: #1a1a1a; --bg: #fafafa; --accent: #6b3d1f; --muted: #666; --card: #fff; --border: #e0e0e0; }
       * { box-sizing: border-box; }
