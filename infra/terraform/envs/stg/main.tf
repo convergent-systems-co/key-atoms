@@ -40,6 +40,22 @@ resource "cloudflare_pages_project" "site" {
   }
 }
 
+variable "zone_id" {
+  type        = string
+  description = "Cloudflare zone ID for key-atoms.com"
+  default     = "0ebdfbfc72503b2b6d0b79995884a3b5"
+}
+
+resource "cloudflare_record" "apex" {
+  zone_id = var.zone_id
+  name    = "@"
+  content = cloudflare_pages_project.site.subdomain
+  type    = "CNAME"
+  proxied = true
+  ttl     = 1
+  comment = "Apex CNAME → CF Pages project (auto-flattened by CF)"
+}
+
 output "subdomain" {
   value       = cloudflare_pages_project.site.subdomain
   description = "Default *.pages.dev hostname for the project."
